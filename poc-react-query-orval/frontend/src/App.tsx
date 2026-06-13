@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { TodosPage } from './pages/TodosPage';
 import { ObservablePatternPage } from './pages/ObservablePatternPage';
+import { StateVsVariablePage } from './pages/StateVsVariablePage';
 
-type Tab = 'todos' | 'observable';
+type Tab = 'todos' | 'observable' | 'state-vs-var';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'todos', label: '📝 Todos' },
   { id: 'observable', label: '🔭 Observable Pattern' },
+  { id: 'state-vs-var', label: '⚖️ State vs. Variable' },
 ];
 
 export function App() {
@@ -29,7 +31,9 @@ export function App() {
         ))}
       </nav>
 
-      {tab === 'todos' ? <TodosPage /> : <ObservablePatternPage />}
+      {tab === 'todos' && <TodosPage />}
+      {tab === 'observable' && <ObservablePatternPage />}
+      {tab === 'state-vs-var' && <StateVsVariablePage />}
     </main>
   );
 }
