@@ -7,6 +7,7 @@ import { InfinitePage } from './pages/InfinitePage';
 import { AsyncPatternsPage } from './pages/AsyncPatternsPage';
 import { ObservablePatternPage } from './pages/ObservablePatternPage';
 import { StateVsVariablePage } from './pages/StateVsVariablePage';
+import { TogetherNewsPage } from './pages/TogetherNewsPage';
 import { tokens } from './ui/kit';
 
 type NavItem = { to: string; label: string; element: React.ReactNode };
@@ -26,6 +27,12 @@ const SECTIONS: NavSection[] = [
       { to: '/pagination', label: '📄 Pagination', element: <PaginationPage /> },
       { to: '/infinite', label: '♾️ Infinite Query', element: <InfinitePage /> },
       { to: '/async', label: '🔗 Dependent · Prefetch · Polling', element: <AsyncPatternsPage /> },
+    ],
+  },
+  {
+    heading: 'NocoBase',
+    items: [
+      { to: '/together-news', label: '📰 Together News (CRUD)', element: <TogetherNewsPage /> },
     ],
   },
   {
