@@ -1,65 +1,135 @@
-import { useState } from 'react';
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
+import type { CSSProperties } from 'react';
 import { TodosPage } from './pages/TodosPage';
+import { OptimisticPage } from './pages/OptimisticPage';
+import { PaginationPage } from './pages/PaginationPage';
+import { InfinitePage } from './pages/InfinitePage';
+import { AsyncPatternsPage } from './pages/AsyncPatternsPage';
 import { ObservablePatternPage } from './pages/ObservablePatternPage';
 import { StateVsVariablePage } from './pages/StateVsVariablePage';
+import { tokens } from './ui/kit';
 
-type Tab = 'todos' | 'observable' | 'state-vs-var';
+type NavItem = { to: string; label: string; element: React.ReactNode };
+type NavSection = { heading: string; items: NavItem[] };
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'todos', label: '📝 Todos' },
-  { id: 'observable', label: '🔭 Observable Pattern' },
-  { id: 'state-vs-var', label: '⚖️ State vs. Variable' },
+/**
+ * The gallery. Each route demonstrates one TanStack Query concept using the
+ * Orval-generated, fully-typed hooks. Foundations explain *why* React Query
+ * works (the observable model underneath).
+ */
+const SECTIONS: NavSection[] = [
+  {
+    heading: 'TanStack Query',
+    items: [
+      { to: '/todos', label: '📝 Todos (CRUD)', element: <TodosPage /> },
+      { to: '/optimistic', label: '⚡ Optimistic Updates', element: <OptimisticPage /> },
+      { to: '/pagination', label: '📄 Pagination', element: <PaginationPage /> },
+      { to: '/infinite', label: '♾️ Infinite Query', element: <InfinitePage /> },
+      { to: '/async', label: '🔗 Dependent · Prefetch · Polling', element: <AsyncPatternsPage /> },
+    ],
+  },
+  {
+    heading: 'Foundations',
+    items: [
+      { to: '/observable', label: '🔭 Observable Pattern', element: <ObservablePatternPage /> },
+      { to: '/state-vs-var', label: '⚖️ State vs. Variable', element: <StateVsVariablePage /> },
+    ],
+  },
 ];
 
+const ALL_ITEMS = SECTIONS.flatMap((s) => s.items);
+
 export function App() {
-  const [tab, setTab] = useState<Tab>('observable');
-
   return (
-    <main style={styles.main}>
-      <nav style={styles.nav}>
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            style={{
-              ...styles.tab,
-              ...(tab === t.id ? styles.tabActive : null),
-            }}
-          >
-            {t.label}
-          </button>
+    <div style={styles.shell}>
+      <aside style={styles.sidebar}>
+        <div style={styles.brand}>
+          <span style={styles.brandTitle}>React Query</span>
+          <span style={styles.brandSub}>+ Orval · concept gallery</span>
+        </div>
+        {SECTIONS.map((section) => (
+          <nav key={section.heading} style={styles.navGroup}>
+            <span style={styles.navHeading}>{section.heading}</span>
+            {section.items.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                style={({ isActive }) => ({
+                  ...styles.navLink,
+                  ...(isActive ? styles.navLinkActive : null),
+                })}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
         ))}
-      </nav>
+      </aside>
 
-      {tab === 'todos' && <TodosPage />}
-      {tab === 'observable' && <ObservablePatternPage />}
-      {tab === 'state-vs-var' && <StateVsVariablePage />}
-    </main>
+      <main style={styles.content}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/todos" replace />} />
+          {ALL_ITEMS.map((item) => (
+            <Route key={item.to} path={item.to} element={item.element} />
+          ))}
+          <Route path="*" element={<Navigate to="/todos" replace />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  main: {
-    maxWidth: 720,
-    margin: '40px auto',
-    fontFamily: 'system-ui, sans-serif',
-    padding: '0 16px',
-  },
-  nav: {
+const styles: Record<string, CSSProperties> = {
+  shell: {
     display: 'flex',
-    gap: 8,
-    marginBottom: 24,
-    borderBottom: '1px solid #e0e0e0',
-    paddingBottom: 12,
+    minHeight: '100vh',
+    fontFamily: 'system-ui, sans-serif',
+    color: tokens.text,
   },
-  tab: {
-    border: '1px solid transparent',
-    background: 'transparent',
+  sidebar: {
+    width: 248,
+    flexShrink: 0,
+    borderRight: `1px solid ${tokens.border}`,
+    background: '#fff',
+    padding: '20px 14px',
+    position: 'sticky',
+    top: 0,
+    alignSelf: 'flex-start',
+    height: '100vh',
+    boxSizing: 'border-box',
+    overflowY: 'auto',
   },
-  tabActive: {
-    background: '#eef2ff',
-    borderColor: '#c7d2fe',
-    color: '#4f46e5',
+  brand: { display: 'flex', flexDirection: 'column', padding: '0 8px 16px' },
+  brandTitle: { fontWeight: 700, fontSize: 16 },
+  brandSub: { fontSize: 12, color: tokens.faint },
+  navGroup: { display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 18 },
+  navHeading: {
+    fontSize: 11,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    color: tokens.faint,
+    padding: '0 8px 6px',
+  },
+  navLink: {
+    textDecoration: 'none',
+    color: '#333',
+    fontSize: 14,
+    padding: '7px 10px',
+    borderRadius: 8,
+    transition: 'background 0.15s',
+  },
+  navLinkActive: {
+    background: tokens.accentSoft,
+    color: tokens.accent,
     fontWeight: 600,
+  },
+  content: {
+    flex: 1,
+    maxWidth: 820,
+    margin: '0 auto',
+    padding: '40px 32px 80px',
+    width: '100%',
+    boxSizing: 'border-box',
   },
 };
