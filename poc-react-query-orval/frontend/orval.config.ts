@@ -18,6 +18,12 @@ export default defineConfig({
       target: './src/api/generated',
       schemas: './src/api/generated/model',
       client: 'react-query',
+      // Orval v8 flipped the default HTTP client to `fetch`, which changes the
+      // mutator contract to `(url, RequestInit)` and wraps responses in
+      // `{ data, status, headers }`. Pin `axios` so our `customInstance`
+      // mutator (single AxiosRequestConfig arg) keeps working and responses
+      // stay the plain backend models.
+      httpClient: 'axios',
       clean: true,
       prettier: false,
       override: {
@@ -25,10 +31,10 @@ export default defineConfig({
           path: './src/api/axios-instance.ts',
           name: 'customInstance',
         },
-        query: {
-          useQuery: true,
-          useMutation: true,
-        },
+        // Let orval pick the hook kind from the HTTP method (GET -> useQuery,
+        // POST/PATCH/DELETE -> useMutation). In v8, forcing both flags on
+        // generates a query *and* a mutation for every endpoint and mislabels
+        // the default hook, so we rely on the method-based default instead.
       },
     },
   },
