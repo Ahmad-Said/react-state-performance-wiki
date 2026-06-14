@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { keepPreviousData } from '@tanstack/react-query';
-import { useListArticles } from '../api/generated/articles/articles';
+import { useEffect, useState } from 'react';
+import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
+import { getListArticlesQueryOptions, useListArticles } from '../api/generated/articles/articles';
 import { Badge, Button, Callout, Card, Code, Footnote, PageHeader, Spinner, tokens } from '../ui/kit';
 
 const PAGE_SIZE = 10;
@@ -13,11 +13,21 @@ const PAGE_SIZE = 10;
 export function PaginationPage() {
   const [page, setPage] = useState(1);
   const [keepPrev, setKeepPrev] = useState(true);
+  const [prefetch, setPrefetch] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isFetching, isPlaceholderData, isError } = useListArticles(
     { page, page_size: PAGE_SIZE },
     { query: { placeholderData: keepPrev ? keepPreviousData : undefined } },
   );
+
+  // Warm the cache for page+1 as soon as the current page resolves, so the
+  // next click reads straight from cache — the user never sees a fetch.
+  useEffect(() => {
+    if (!prefetch || !data?.has_next) return;
+    const nextParams = { page: page + 1, page_size: PAGE_SIZE };
+    queryClient.prefetchQuery(getListArticlesQueryOptions(nextParams));
+  }, [prefetch, data?.has_next, page, queryClient]);
 
   const totalPages = data?.total_pages ?? 1;
   // With keepPreviousData the old page lingers; dim it to signal "stale".
@@ -45,6 +55,14 @@ export function PaginationPage() {
           />
           keepPreviousData
         </label>
+        <label style={styles.switch}>
+          <input
+            type="checkbox"
+            checked={prefetch}
+            onChange={(e) => setPrefetch(e.target.checked)}
+          />
+          prefetch next page
+        </label>
         <span style={{ flex: 1 }} />
         {isFetching && (
           <span style={styles.fetching}>
@@ -63,6 +81,14 @@ export function PaginationPage() {
           <>
             With it off, every page change is a brand-new cache key, so the list{' '}
             <strong>blanks to a spinner</strong> for 0.6s each time. Turn it back on to compare.
+          </>
+        )}
+        {prefetch && (
+          <>
+            {' '}
+            <strong>Prefetch is on:</strong> page <em>n+1</em> is fetched into the cache the moment
+            page <em>n</em> lands, so <strong>Next</strong> reads from cache — no visible fetch at
+            all (watch the “fetching…” indicator stay quiet on click).
           </>
         )}
       </Callout>
