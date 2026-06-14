@@ -5,6 +5,7 @@ import { OptimisticPage } from './pages/OptimisticPage';
 import { PaginationPage } from './pages/PaginationPage';
 import { InfinitePage } from './pages/InfinitePage';
 import { AsyncPatternsPage } from './pages/AsyncPatternsPage';
+import { CachingParamsPage } from './pages/CachingParamsPage';
 import { ObservablePatternPage } from './pages/ObservablePatternPage';
 import { StateVsVariablePage } from './pages/StateVsVariablePage';
 import { tokens } from './ui/kit';
@@ -26,6 +27,7 @@ const SECTIONS: NavSection[] = [
       { to: '/pagination', label: '📄 Pagination', element: <PaginationPage /> },
       { to: '/infinite', label: '♾️ Infinite Query', element: <InfinitePage /> },
       { to: '/async', label: '🔗 Dependent · Prefetch · Polling', element: <AsyncPatternsPage /> },
+      { to: '/caching', label: '🗄️ Cache Lifecycle (stale/gc)', element: <CachingParamsPage /> },
     ],
   },
   {
