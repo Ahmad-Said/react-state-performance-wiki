@@ -10,6 +10,8 @@ A focused guide to **design patterns** in general, the **Observer / Observable p
 | [02-observer-observable.md](./02-observer-observable.md) | The Observer/Observable pattern from first principles: subject, observers, subscribe/notify, push vs pull |
 | [03-react-state-as-observable.md](./03-react-state-as-observable.md) | React state *is* an observable system — `useState`, external stores, and `useSyncExternalStore` |
 | [04-build-an-observable-store.md](./04-build-an-observable-store.md) | Build a minimal observable store from scratch and wire it into React (mirrors the live demo) |
+| [05-typescript-generics.md](./05-typescript-generics.md) | What the `<T>` in `createStore<T>`, `useStore<T, S>`, and `request<T>` means — generics as the feature that makes a reusable pattern type-safe |
+| [06-singleton-pattern.md](./06-singleton-pattern.md) | The Singleton pattern — one shared instance — and why `export const cartStore = …` already is one; Singleton + Observer = a shared store |
 
 > **Want to see it run?** The companion React app has a live page that implements the store from [file 04](./04-build-an-observable-store.md) and lets you watch observers get notified in real time. See [`poc-react-query-orval/frontend`](../poc-react-query-orval/frontend) → the **Observable Pattern** tab.
 
