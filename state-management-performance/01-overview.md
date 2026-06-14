@@ -31,12 +31,12 @@ flowchart TD
     Q -- "YES" --> Server["use a server-state cache"]
     Q -- "NO" --> Client["it's client/UI state"]
     
-    Server --> |Already on Redux / need fine cache control| RTK["RTK Query"]
-    Server --> |Otherwise (most apps)| RQ["React Query (TanStack Query)"]
+    Server -->|"Already on Redux / need fine cache control"| RTK["RTK Query"]
+    Server -->|"Otherwise (most apps)"| RQ["React Query (TanStack Query)"]
     
-    Client --> |Small, local| Local["useState / useReducer"]
-    Client --> |Shared across tree, simple| Z["Zustand"]
-    Client --> |Complex, many reducers, time-travel| Redux["Redux Toolkit"]
+    Client -->|"Small, local"| Local["useState / useReducer"]
+    Client -->|"Shared across tree, simple"| Z["Zustand"]
+    Client -->|"Complex, many reducers, time-travel"| Redux["Redux Toolkit"]
 ```
 
 You can — and often should — combine them: **React Query for the data, Zustand for the UI state around it.** See [06-comparison.md](./06-comparison.md).

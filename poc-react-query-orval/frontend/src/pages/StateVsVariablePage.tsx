@@ -17,6 +17,16 @@ export function StateVsVariablePage() {
     return () => clearTimeout(timer); // cleanup if the page unmounts early
   }, []);
 
+  // --- a recurring side effect: tick every 2 seconds ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('tick — still mounted at', new Date().toLocaleTimeString());
+    }, 2000);
+    // Cleanup: stop the interval when the component unmounts so it doesn't
+    // keep logging (and leaking) after the page is gone.
+    return () => clearInterval(interval);
+  }, []);
+
   // --- the comparison ---
   const [stateCount, setStateCount] = useState(0);
 
