@@ -101,6 +101,35 @@ qc.ensureQueryData(orderQueries.detail(id));          // prefetch but RETURN the
 - **`resetQueries`** is gentler: restores to initial and refetches what's active.
 - **`prefetchQuery`** vs **`ensureQueryData`**: prefetch is fire-and-forget warming; `ensureQueryData` resolves with the data (cached or freshly fetched), ideal in route loaders.
 
+## Scenario: edit a detail, see it in the list on the way back
+
+A canonical flow: navigate from a list to a detail view, edit the record, navigate back, and expect the list to already reflect the change. Three ways to make that happen, from hands-off to surgical.
+
+**1 · Invalidate the list — the default.** After the mutation succeeds, mark the list stale. When the list remounts on back-navigation it's stale *and* active, so it refetches in the background and converges on server truth. Least code, always correct.
+
+```tsx
+const qc = useQueryClient();
+useMutation({
+  mutationFn: updateOrder,
+  onSuccess: () => qc.invalidateQueries({ queryKey: orderKeys.lists() }),
+});
+```
+
+**2 · Write the cache — the snappy one.** You already hold the updated record, so patch it into the list and skip the round-trip. The list shows the new value instantly with no refetch flicker. The cost is correctness: if the server changes ordering, filtering, or aggregates, your hand-written list diverges — so this fits best when the write returns the canonical row and list shape is stable.
+
+```tsx
+useMutation({
+  mutationFn: updateOrder,
+  onSuccess: (updated) =>
+    qc.setQueriesData<ListResponse>({ queryKey: orderKeys.lists() }, (old) =>
+      old && { ...old, data: old.data.map((o) => (o.id === updated.id ? updated : o)) }),
+});
+```
+
+**3 · Lean on default refetching — don't.** With `staleTime: 0` plus the default `refetchOnMount`/`refetchOnWindowFocus`, remounting the list *may* refetch on its own. But it's incidental, not guaranteed (raise `staleTime` and it stops), and the user sees the **old** row for a frame before it pops to the new one. Treat it as a safety net, never the mechanism.
+
+**Pick:** invalidation by default; `setQueriesData` when the list is large, the API is slow, or you want a seamless transition with no background spinner. Combine them — optimistic `setQueriesData` plus an `onSettled` invalidate — when you want instant *and* eventually-correct (see [05-mutations-optimistic.md](./05-mutations-optimistic.md)).
+
 ## A practical invalidation policy
 
 1. **One source of truth per write.** After a mutation, decide: does the server own the new value (→ invalidate) or do I (→ `setQueryData`)? Don't do both for the same field unless you mean optimistic-then-reconcile.

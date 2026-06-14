@@ -1,6 +1,7 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 import { TodosPage } from './pages/TodosPage';
+import { TodosManualPage } from './pages/TodosManualPage';
 import { OptimisticPage } from './pages/OptimisticPage';
 import { PaginationPage } from './pages/PaginationPage';
 import { InfinitePage } from './pages/InfinitePage';
@@ -23,6 +24,7 @@ const SECTIONS: NavSection[] = [
     heading: 'TanStack Query',
     items: [
       { to: '/todos', label: '📝 Todos (CRUD)', element: <TodosPage /> },
+      { to: '/todos-manual', label: '✍️ Todos (manual fetch)', element: <TodosManualPage /> },
       { to: '/optimistic', label: '⚡ Optimistic Updates', element: <OptimisticPage /> },
       { to: '/pagination', label: '📄 Pagination', element: <PaginationPage /> },
       { to: '/infinite', label: '♾️ Infinite Query', element: <InfinitePage /> },
